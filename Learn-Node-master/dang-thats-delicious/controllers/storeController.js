@@ -3,12 +3,11 @@ const Store = mongoose.model('Store');
 
 
 exports.homePage = (req, res) => {
-	console.log(req.name);
 	req.flash('error', 'Oops, Something Happened');
 	req.flash('info', 'Something Happened');
 	req.flash('warning', 'Something Happened');
 	req.flash('success', 'Something Happened');
- res.render('index');
+ 	res.render('index');
 };
 
 exports.addStore = (req, res) => {
@@ -27,3 +26,11 @@ exports.getStores = async (req, res) => {
 	const stores = await Store.find();
 	res.render('stores', { title: 'Stores', stores: stores });
 };
+
+exports.editStore = async(req, res) => {
+	//1. find the store given the ID
+	const store = await Store.findOne({ _id: req.params.id });
+	res.json(store);
+	//2. confirm they are the owner of the store
+	//3. Render out the edit form so the user can update their store
+}
