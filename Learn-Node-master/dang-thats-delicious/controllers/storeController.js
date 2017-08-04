@@ -37,8 +37,15 @@ exports.resize = async (req, res, next) {
 		next(); // skip to the next middleware
 		return;
 	}
-	console.log(req.file);
-}
+	const extension = req.file.mimetype.split('/')[1];
+	req.body.photo = `${uuid.v4()}.${extension}`;
+	// now we resize
+	const photo = await jimp.read(req.file.buffer);
+	await photo.resize(800, jimp.AUTO);
+	await photo.write(`./public/uploads/${req.body.photo}`);
+	// once we have writtent the photo to our filesystem, keep going
+	next();
+};
 
 exports.createStore = async (req, res) => {
 	const store = new Store(req.body);
@@ -73,4 +80,15 @@ exports.updateStore = async(req, res) => {
 	req.flash('success', `Successfully updated <strong>${store.name}</strong>. <a href="/stores/${store.slug}">View Store -></a>`);
 	res.redirect(`/stores/${store._id}/edit`);
 	// redirect them  to the stotre and tell them it worked
-}
+};
+
+exports.getStoreBySlug = async (req, res) => {
+	const store = await Store.findOne({ slug: req.params.slug });
+	if(!store) return next();
+	res.render('store', { store, title: store.name});
+	// res.send('it works');
+};
+
+
+
+
