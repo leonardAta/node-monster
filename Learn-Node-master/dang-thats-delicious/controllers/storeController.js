@@ -31,7 +31,7 @@ exports.addStore = (req, res) => {
 
 exports.upload = multer(multerOptions).single('photo');
 
-exports.resize = async (req, res, next) {
+exports.resize = async (req, res, next) => {
 	// check if there is no new file to resize
 	if(!req.file) {
 		next(); // skip to the next middleware
@@ -82,11 +82,21 @@ exports.updateStore = async(req, res) => {
 	// redirect them  to the stotre and tell them it worked
 };
 
-exports.getStoreBySlug = async (req, res) => {
+exports.getStoreBySlug = async (req, res, next ) => {
 	const store = await Store.findOne({ slug: req.params.slug });
 	if(!store) return next();
 	res.render('store', { store, title: store.name});
 	// res.send('it works');
+};
+
+exports.getStoresByTag = async (req, res) => {
+	const tag = req.params.tag;
+	const tagQuery = tag || { $exists: true};
+
+	const tagsPromise = Store.getTagsList();
+	const storesPromise = Store.find({tags: tagQuery });
+	const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
+	res.render('tag', { tags, title: 'Tags', tag, stores });
 };
 
 
