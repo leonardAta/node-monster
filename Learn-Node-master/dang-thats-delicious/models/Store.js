@@ -38,8 +38,15 @@ const storeSchema = new mongoose.Schema ({
  	ref: 'User',
  	required: 'You must supply an author'
  }
-
 }); 
+
+// Define our indexes
+storeSchema.index({
+	name: 'text',
+	descripion: 'text'
+});
+
+
 storeSchema.pre('save', function(next) {
 	if(!this.isModified('name')) {
 		next(); // skip it
